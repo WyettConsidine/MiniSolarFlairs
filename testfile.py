@@ -1,1 +1,2 @@
-print:('hello flairs ****')
+print('hello flairs ****')
+print('abc')
