@@ -1,1 +1,3 @@
-print:('hello flairs ****')
+print('hello flairs ****')
+
+print ('jazz hands')
