@@ -3,8 +3,7 @@ import numpy as np
 import cftime
 import matplotlib.pyplot as plt
 from datetime import datetime
-import os
-import requests
+import xarray as xr
 
 
 def grabData(dir0, file0):
@@ -44,18 +43,30 @@ def plot_xrsa_flux(ff, datetime0, platform, make_plot= True, num_vars= 2):
         plt.ylabel("X-Ray Flux [{}]".format(ff[var_name[0]].units))
         plt.show()
 
-print("Done.\n")
+def explData(ff):
+    print("ff type: " + str(type(ff)))
+    print(ff.variables.keys())
+
+def ncDatasetToDF(dir0, file0):
+    Warning("Note: in transition from nc type to dataframe, meta-data is lost.")
+    ds = xr.open_dataset(dir0+file0)
+    df = ds.to_dataframe()
+    return df
 
 
 def main():
-    print('plotting data')
+    #print('plotting data')
     ###NOTE: this may change depending on what directory you are in. Start with dir path outside MiniSolarFlairs
     dir0 = 'MiniSolarFlairs\\data\\'
     file0 =  'sci_xrsf-l2-avg1m_g16_d20200601_v2-2-0.nc'
     ff = grabData(dir0,file0)
-    datetime0 = getDateTime0(file0, ff)
-    platform = getPlatform(ff)
-    plot_xrsa_flux(ff,datetime0,platform)
+    # datetime0 = getDateTime0(file0, ff)
+    # platform = getPlatform(ff)
+    # plot_xrsa_flux(ff,datetime0,platform)
+    #explData(ff)
+    dataDF = ncDatasetToDF(dir0,file0)
+    print(dataDF.info())
+
     
 print("Hello")
 main()
