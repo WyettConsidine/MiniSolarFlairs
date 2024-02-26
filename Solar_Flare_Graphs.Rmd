@@ -1,0 +1,29 @@
+---
+title: "Solar Flare Data Cleaning"
+output: html_document
+date: "2024-02-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+setwd("C:/Users/samto/OneDrive/Desktop/Solar_Flair")
+df <- read.csv("XRS_Flare_Summary2.csv")
+df
+tail(df)
+eventpeak = filter(df, df$status == "EVENT_PEAK")
+eventpeak
+hist(eventpeak$xrsb_flux, breaks = 200, xlim = c(0,1*10^-4))
+hist(log(eventpeak$xrsb_flux), breaks = 10)
+
+ggplot(eventpeak, aes(xrsb_flux)) +
+geom_histogram(color = "red", fill = "grey", bins = 50) +
+scale_x_log10()
+```
