@@ -6,6 +6,9 @@ from datetime import datetime
 import xarray as xr
 import math
 from scipy.optimize import curve_fit
+from scipy.optimize import minimize
+import mpfit
+#import numpy.oldnumeric as Numeric
 
 
 def grabData(dir0, file0):
@@ -79,7 +82,21 @@ def fitData(xData, yData, flareShape):
     popt, pcov = curve_fit(flareShape, xData, yData)
     return popt
 
+def mpFitRunner(fitFuncName,x,y,err):
+    print("hello")
+    p0 = [5.7, 2.2, 500., 1.5, 2000.]
+    # y = ( p[0] + p[1]*[x] + p[2]*[x**2] + p[3]*sqrt(x) +
+    #         p[4]*log(x))
+    fa = {'x':x, 'y':y, 'err':err}
+    m = mpfit(fitFuncName, p0, functkw=fa)
+    print ('status = ', m.status)
+    if (m.status <= 0): print( 'error message = '), m.errmsg
+    print ('parameters = '), m.params
 
+def fitFunc(p,x,y,err=None):  #try with err = 1 if x/None error
+    model = flareShape(x,*p)
+    status = 0
+    return([status, (y-model)/err])
 
 
 def main():
@@ -114,9 +131,9 @@ def main():
     # #fitting Flare
     x = [x for x in range(len(dataDF[timeFrame]['time']))]
     print(x)
-    popt = fitData(x,dataDF[timeFrame]['xrsb_flux'],flareShape)
+    popt = fitData(x,dataDF[timeFrame]['xrsb_flux'],Gaussian)
     print(popt)
-    pred = flareShape(range(len(dataDF[timeFrame]['time'])), *popt)
+    pred = Gaussian(range(len(dataDF[timeFrame]['time'])), *popt)
     
     #pred = [EfOfT(x) for x in range(len(dataDF[timeFrame]['time']))]
     #print(pred)
@@ -131,15 +148,20 @@ def main():
     # plt.show()
 
 
-    #G fit for sanity
-    #x = [x/100 for x in range(0,1400)]
-    #print(x)
-    # #Param 1: amplitude, 2: mean, 3:sharpness/sd?, 4: expDecay rate, 5&6 background.
-    #params = [1/1000,6.5,-.2,1.5]
-    # y = flareShape(x,*params)
-    # print(y)
-    # plt.plot(x,y)
-    # plt.show()
+    ####### -- # G fit for sanity
+    x = [x/100 for x in range(0,1400)]
+    print(x)
+    #Param 1: amplitude, 2: mean, 3:sharpness/sd?, 4: expDecay rate, 5&6 background.
+    params = [1/1000,6.5,-.2,1.5]
+    y = flareShape(x,*params)
+    print(y)
+    plt.plot(x,y)
+    plt.show()
+
+
+    # y = dataDF[timeFrame]['xrsb_flux']
+    # err = None
+    # mpFitRunner('flareShape',x,y,err)
 
     # print('complete')
 
